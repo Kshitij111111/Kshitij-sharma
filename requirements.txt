@@ -1,0 +1,6 @@
+Flask
+Flask-Cors
+markdown
+python-dotenv
+requests
+PyMuPDF  # For PDF text extraction

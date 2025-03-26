@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resume ATS Evaluator</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --success-color: #10b981;
+        --text-color: #1e293b;
+        --border-color: #e2e8f0;
+        --background-color: #f8fafc;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: #fff;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      .header {
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .header h1 {
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+      }
+
+      .upload-section {
+        background-color: #f9fafb;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+
+      .form-group input[type="text"],
+      .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.375rem;
+        font-size: 1rem;
+      }
+
+      .file-upload {
+        display: block;
+        width: 100%;
+        padding: 1.5rem;
+        border: 2px dashed #cbd5e1;
+        border-radius: 0.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .file-upload:hover {
+        border-color: var(--primary-color);
+      }
+
+      .file-upload i {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+      }
+
+      .upload-text {
+        margin-bottom: 0.5rem;
+      }
+
+      .file-name {
+        font-size: 0.875rem;
+        color: #64748b;
+        margin-top: 0.5rem;
+      }
+
+      .submit-btn {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .submit-btn:hover {
+        background-color: var(--secondary-color);
+      }
+
+      .result-section {
+        display: none;
+        margin-top: 2rem;
+        padding: 2rem;
+        background-color: #f9fafb;
+        border-radius: 0.5rem;
+      }
+
+      .result-title {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+      }
+
+      .score-item {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background-color: #fff;
+        border-radius: 0.375rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      }
+
+      .score-item h3 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .score-value {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 999px;
+        font-size: 0.875rem;
+      }
+
+      .recommendations {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background-color: #fff;
+        border-radius: 0.375rem;
+        border-left: 4px solid var(--success-color);
+      }
+
+      .final-score {
+        text-align: center;
+        margin-top: 2rem;
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+
+      .final-score span {
+        display: inline-block;
+        margin-left: 0.5rem;
+        padding: 0.375rem 1rem;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 999px;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        margin: 2rem 0;
+      }
+
+      .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left-color: var(--primary-color);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Resume ATS Evaluator</h1>
+        <p>
+          Upload your resume and get a detailed ATS compatibility score for your
+          target role
+        </p>
+      </div>
+
+      <div class="upload-section">
+        <form id="resume-form">
+          <div class="form-group">
+            <label for="target-role">Target Role</label>
+            <input
+              type="text"
+              id="target-role"
+              name="target_role"
+              placeholder="E.g., Data Scientist, Software Engineer, Marketing Manager"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="resume-upload">Upload Your Resume (PDF)</label>
+            <label for="resume-file" class="file-upload">
+              <i class="fas fa-file-upload"></i>
+              <div class="upload-text">
+                Drag and drop your resume here, or click to browse
+              </div>
+              <input
+                type="file"
+                id="resume-file"
+                name="resume"
+                accept=".pdf"
+                style="display: none"
+                required
+              />
+              <div id="file-name" class="file-name">No file selected</div>
+            </label>
+          </div>
+
+          <button type="submit" class="submit-btn">Evaluate Resume</button>
+        </form>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Analyzing your resume... This might take a few moments.</p>
+      </div>
+
+      <div class="result-section" id="result-section">
+        <h2 class="result-title">Resume Analysis & Scoring</h2>
+        <div id="evaluation-results"></div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const resumeForm = document.getElementById("resume-form");
+        const resumeFileInput = document.getElementById("resume-file");
+        const fileNameDisplay = document.getElementById("file-name");
+        const loadingElement = document.getElementById("loading");
+        const resultSection = document.getElementById("result-section");
+        const evaluationResults = document.getElementById("evaluation-results");
+
+        // Display selected file name
+        resumeFileInput.addEventListener("change", function () {
+          if (this.files.length > 0) {
+            fileNameDisplay.textContent = this.files[0].name;
+          } else {
+            fileNameDisplay.textContent = "No file selected";
+          }
+        });
+
+        // Handle form submission
+        resumeForm.addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          // Show loading
+          loadingElement.style.display = "block";
+          resultSection.style.display = "none";
+
+          const formData = new FormData(resumeForm);
+
+          try {
+            const response = await fetch("/upload", {
+              method: "POST",
+              body: formData,
+            });
+
+            const data = await response.json();
+
+            // Hide loading
+            loadingElement.style.display = "none";
+
+            if (data.status === "success") {
+              // Display results
+              evaluationResults.innerHTML = data.evaluation;
+              resultSection.style.display = "block";
+
+              // Scroll to results
+              resultSection.scrollIntoView({ behavior: "smooth" });
+            } else {
+              alert(`Error: ${data.message}`);
+            }
+          } catch (error) {
+            loadingElement.style.display = "none";
+            alert("An error occurred. Please try again.");
+            console.error(error);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
